@@ -141,16 +141,25 @@ def main():
     
     #CHALLENGE - Write a function that outputs a deep dream video
     def render_deepdreamvideo(filename):
+
+        #Step 3 - Pick a layer to enhance our image
+        layer = 'mixed4d_3x3_bottleneck_pre_relu'
+        channel = 139 # picking some feature channel to visualize
+        # use ImageIO to read in the video file using ffmpeg
         vid = imageio.get_reader(filename,  'ffmpeg')
+        # get individual frames from the video
         enuVid = enumerate(vid)
+        # itterate over each frame in the video
         for i, im in enuVid:
             print("Frame : " + str(i))
             img = np.float32(im)
 
             #Apply gradient ascent to that layer
-            deepDreamImg = render_deepdream(tf.square(T('mixed4c')), img, iter_n=100, octave_n=1 )
+            deepDreamImg = render_deepdream(T(layer)[:,:,:,channel], img0, iter_n=100, octave_n=4, step=1.5, octave_scale=1.4)
+            # save the computed image as a png file that will later be stitched together using ffmpeg into a video
             SaveArray(deepDreamImg, i)
-        os.system("ffmpeg -r 30 -f image2 -s 1920x1080 -i %d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p test.mp4")
+        # stitch all frames together into one video
+        os.system("ffmpeg -r 30 -f image2 -s 1920x1080 -i out/%d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p test.mp4")
 
     def SaveArray(a, i):
         a = np.uint8(np.clip(a, 0, 1)*255)
@@ -190,10 +199,6 @@ def main():
             
          
   
-   	#Step 3 - Pick a layer to enhance our image
-    layer = 'mixed4d_3x3_bottleneck_pre_relu'
-    channel = 139 # picking some feature channel to visualize
-    
     #openVideo
     filename = '20161021_125306.mp4'
     render_deepdreamvideo(filename)
