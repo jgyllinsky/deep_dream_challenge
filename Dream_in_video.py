@@ -155,7 +155,7 @@ def main():
             img = np.float32(im)
 
             #Apply gradient ascent to that layer
-            deepDreamImg = render_deepdream(T(layer)[:,:,:,channel], img0, iter_n=100, octave_n=4, step=1.5, octave_scale=1.4)
+            deepDreamImg = render_deepdream(T(layer)[:,:,:,channel], img, iter_n=100, octave_n=4, step=1.5, octave_scale=1.4)
             # save the computed image as a png file that will later be stitched together using ffmpeg into a video
             SaveArray(deepDreamImg, i)
         # stitch all frames together into one video
